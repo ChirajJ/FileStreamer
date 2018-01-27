@@ -1,0 +1,19 @@
+body{
+    background-color: black;
+    padding: 20px 10px 10px 10px;
+}
+
+h1{
+    color: green;
+}
+
+h1, #stream{
+    margin: 10px 10px 10px 10px;
+}
+
+.result{
+    background-color: darkgray;
+    color: green;
+    padding: 20px 10px 10px 10px;
+    margin: 10px 10px 10px 10px;
+}

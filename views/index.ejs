@@ -1,0 +1,74 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <title>File Streamer</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <h1>File Streamer</h1>
+        <input type="button" class="btn btn-success" value="Stream Huge" id="stream">
+        <input type="button" class="btn btn-success" value="Stream Small" id="sstream">
+        <!-- <input type="button" class="btn btn-success" value="Continue Stream" id="cstream"> -->
+        <div class="result">
+            
+        </div>
+    </body>
+    <script>
+        (function(){
+
+            $('#stream').on('click', function(){
+
+                fetch("http://localhost:3000/hdata").then((response) => {
+
+                    var decoder = new TextDecoder();
+                    var bytesReceived = 0;
+
+                    const reader = response.body.getReader();                    
+                    const stream = new ReadableStream({
+
+                        start(controller) {
+                        // The following function handles each data chunk
+                        function push() { 
+                            // "done" is a Boolean and value a "Uint8Array"
+                            return reader.read().then(({ done, value }) => {
+                            // Is there no more data to read?                            
+                            if (done) {
+                                // Tell the browser that we have finished sending data
+                                controller.close();
+                                console.log("End of stream ...!");
+                                return;
+                            }
+                            bytesReceived += value.length;
+                            
+                            console.log(decoder.decode(value, {stream: true}));
+                            console.log('Received', bytesReceived, 'bytes of data so far');
+
+                            // Get the data and send it to the browser via the controller
+                            controller.enqueue(value);
+                            }).then(push);
+                        }
+                        
+                        push();
+                        }
+                });
+
+                return new Response(stream, { headers: { "Content-Type": "text/html" } });
+                });
+            });
+            /*
+            $('#cstream').on('click', function(){
+                $.get('http://localhost:3000/hcdata', function(data){
+                    console.log(data);
+                });
+            });
+            */
+            $('#sstream').on('click', function(){
+                $.get('http://localhost:3000/sdata', function(data){
+                    console.log(data);
+                });
+            });
+        })()
+    </script>
+</html>
